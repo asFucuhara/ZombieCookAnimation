@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title></title>
+    <meta charset="utf-8" />
+    <meta name="generator" content="Three.js Editor" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+    <link href="./index.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="menu">
+      <img src="./resources/zombieCookLogo.png" />
+      <div>START</div>
+      <div>CONTINUE</div>
+      <div>OPTIONS</div>
+      <div>CREDITS</div>
+    </div>
+    <!-- div container for canvas provided by threejs -->
+    <div id="container" />
+    <!-- Script for threejs -->
+    <script type="module">
+      import * as THREE from './js/three.module.js';
+
+      var container = document.getElementById('container');
+      var camera, scene, renderer, sphereViewer;
+      var zero = new THREE.Vector3(0, 0, 0);
+      var lon = 0,
+        lat = 0,
+        phi = 0,
+        theta = 0;
+
+      (function init() {
+        scene = new THREE.Scene();
+        window.scene = scene;
+        camera = new THREE.PerspectiveCamera(
+          75,
+          window.innerWidth / window.innerHeight,
+          1,
+          1100
+        );
+        camera.position.z = 5;
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setClearColor('#e5e5e5');
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        container.appendChild(renderer.domElement);
+
+        //creating big sphere viewer
+        var sphere = new THREE.SphereGeometry(500, 60, 40);
+        // invert the sphere on the x-axis so that all of the faces point inward
+        sphere.scale(-1, 1, 1);
+
+        var texture = new THREE.TextureLoader().load('./spoopy.png');
+        var sphereViewerMAterial = new THREE.MeshBasicMaterial({
+          map: texture,
+        });
+
+        sphereViewer = new THREE.Mesh(sphere, sphereViewerMAterial);
+        scene.add(sphereViewer);
+
+        window.addEventListener('resize', onWindowResize, false);
+      })();
+      (function animate() {
+        requestAnimationFrame(animate);
+        lon += 0.1;
+
+        lat = Math.max(-85, Math.min(85, lat));
+        phi = THREE.MathUtils.degToRad(90 - lat);
+        theta = THREE.MathUtils.degToRad(lon);
+
+        sphereViewer.lookAt(
+          500 * Math.sin(phi) * Math.cos(theta),
+          500 * Math.cos(phi),
+          500 * Math.sin(phi) * Math.sin(theta)
+        );
+
+        renderer.render(scene, camera);
+      })();
+      function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      }
+    </script>
+  </body>
+</html>
